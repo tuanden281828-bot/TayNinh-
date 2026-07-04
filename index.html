@@ -469,6 +469,13 @@ fbq('track', 'PageView');
   .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--brown-soft);}
   .modal-box h3{font-size:1.5rem;}
   .modal-box input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px;font-family:inherit;}
+
+  /* ---------- Thank-you modal ---------- */
+  .thanks-box{max-width:440px;}
+  .thanks-icon{font-size:2.8rem;margin-bottom:6px;}
+  .thanks-box p{font-size:.95rem;color:var(--brown-soft);}
+  .thanks-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+  .thanks-actions .btn{flex:1 1 160px;}
 </style>
 </head>
 <body>
@@ -538,9 +545,9 @@ fbq('track', 'PageView');
     <a href="#form-cuoi" class="btn">ĐẶT CHỖ NGAY – GIỮ GIÁ ƯU ĐÃI →</a>
     <p style="margin-top:10px;font-size:.85rem;color:#FFFFFF;">Chưa cần thanh toán – Tư vấn viên gọi lại xác nhận trong 5 phút.</p>
 
-    <form class="hero-form" onsubmit="return fakeSubmit(event)">
-      <input type="text" placeholder="Họ và tên" required>
-      <input type="tel" placeholder="Số điện thoại" required>
+    <form class="hero-form" onsubmit="return submitForm(event,'hero')">
+      <input type="text" name="name" placeholder="Họ và tên" required>
+      <input type="tel" name="phone" placeholder="Số điện thoại" required>
       <button type="submit" class="btn small" style="flex:0 0 auto;">Gửi</button>
     </form>
 
@@ -801,20 +808,20 @@ fbq('track', 'PageView');
       <p style="color:#E7D8B7;">Đăng ký ngay – giữ giá 790.000đ trọn gói hôm nay.</p>
     </div>
     <div class="form-card">
-      <form onsubmit="return fakeSubmit(event)">
+      <form onsubmit="return submitForm(event,'final')">
         <label>Họ và tên *</label>
-        <input type="text" required placeholder="Nguyễn Văn A">
+        <input type="text" name="name" required placeholder="Nguyễn Văn A">
         <label>Số điện thoại (Zalo) *</label>
-        <input type="tel" required placeholder="09xx xxx xxx">
+        <input type="tel" name="phone" required placeholder="09xx xxx xxx">
         <label>Số khách dự kiến</label>
-        <select>
+        <select name="guests">
           <option>1–2 khách</option>
           <option>3–5 khách</option>
           <option>6–10 khách</option>
           <option>Trên 10 khách</option>
         </select>
         <label>Ngày muốn khởi hành</label>
-        <input type="date">
+        <input type="date" name="date">
         <button type="submit" class="btn">ĐẶT TOUR NGAY – NHẬN ƯU ĐÃI 790K</button>
       </form>
       <p class="lock-note">🔒 Thông tin của bạn được bảo mật tuyệt đối</p>
@@ -844,10 +851,24 @@ fbq('track', 'PageView');
     <button class="modal-close" onclick="closeModal()">✕</button>
     <h3>Khoan đã!</h3>
     <p>Để lại số điện thoại nhận thêm voucher <strong>50.000đ</strong> cho chuyến đi của bạn.</p>
-    <form onsubmit="return fakeSubmit(event, true)">
-      <input type="tel" placeholder="Nhập số điện thoại của bạn" required>
+    <form onsubmit="return submitForm(event,'exit')">
+      <input type="tel" name="phone" placeholder="Nhập số điện thoại của bạn" required>
       <button type="submit" class="btn" style="width:100%;">Nhận voucher ngay</button>
     </form>
+  </div>
+</div>
+
+<!-- ============ THANK YOU MODAL ============ -->
+<div class="modal-overlay" id="thanksModal">
+  <div class="modal-box thanks-box">
+    <button class="modal-close" onclick="closeThanks()">✕</button>
+    <div class="thanks-icon">🙏</div>
+    <h3>Cảm ơn Quý khách đã đặt Tour!</h3>
+    <p id="thanksMsg">Chúng tôi đã nhận được thông tin đặt tour của bạn. Tư vấn viên sẽ gọi lại xác nhận trong 5 phút.</p>
+    <div class="thanks-actions">
+      <a href="tel:0886131139" class="btn small">📞 Gọi ngay</a>
+      <a href="https://zalo.me/0886131139" target="_blank" class="btn small ghost">💬 Chat Zalo</a>
+    </div>
   </div>
 </div>
 
@@ -926,14 +947,54 @@ fbq('track', 'PageView');
   })();
   function closeModal(){ document.getElementById('exitModal').classList.remove('show'); }
 
-  // ---------- Fake form submit (replace with real endpoint / CRM webhook) ----------
-  function fakeSubmit(e, isModal){
+  // ---------- Google Sheet endpoint ----------
+  // Dán URL Web App của Google Apps Script (kết thúc bằng /exec) vào đây sau khi triển khai.
+  // Xem hướng dẫn tạo Google Sheet + Apps Script ở file GOOGLE_SHEET_SETUP.md trong repo.
+  var GOOGLE_SCRIPT_URL = '';
+
+  function sendToSheet(payload){
+    if(!GOOGLE_SCRIPT_URL){ return; } // chưa cấu hình -> bỏ qua, không lỗi
+    var body = new URLSearchParams(payload);
+    fetch(GOOGLE_SCRIPT_URL, { method:'POST', mode:'no-cors', body: body })
+      .catch(function(err){ console.warn('Không gửi được lên Google Sheet:', err); });
+  }
+
+  // ---------- Xử lý gửi form (hero / final / exit) ----------
+  function submitForm(e, source){
     e.preventDefault();
-    alert('Cảm ơn bạn! Tư vấn viên sẽ gọi lại xác nhận trong 5 phút.');
-    if(isModal) closeModal();
-    // TODO: gắn API/CRM thực tế + fbq('track','Lead'); gtag('event','generate_lead');
+    var form = e.target;
+    var fd = new FormData(form);
+    var name = (fd.get('name') || '').toString().trim();
+    var phone = (fd.get('phone') || '').toString().trim();
+    var guests = (fd.get('guests') || '').toString().trim();
+    var date = (fd.get('date') || '').toString().trim();
+
+    sendToSheet({
+      thoi_gian: new Date().toLocaleString('vi-VN'),
+      ho_ten: name,
+      so_dien_thoai: phone,
+      so_khach: guests,
+      ngay_khoi_hanh: date,
+      nguon: source,
+      trang: 'Tay Ninh 1 ngay'
+    });
+
+    if(typeof fbq === 'function'){ fbq('track','Lead'); }
+    if(typeof gtag === 'function'){ gtag('event','generate_lead'); }
+
+    if(source === 'exit'){ closeModal(); }
+    openThanks(name);
+    form.reset();
     return false;
   }
+
+  function openThanks(name){
+    var msg = document.getElementById('thanksMsg');
+    msg.textContent = (name ? 'Cảm ơn ' + name + '! ' : 'Cảm ơn Quý khách đã đặt Tour! ') +
+      'Chúng tôi đã nhận được thông tin đặt tour của bạn. Tư vấn viên sẽ gọi lại xác nhận trong 5 phút.';
+    document.getElementById('thanksModal').classList.add('show');
+  }
+  function closeThanks(){ document.getElementById('thanksModal').classList.remove('show'); }
 </script>
 
 </body>
