@@ -1,0 +1,4 @@
+# Word/Office lock & temp files
+~$*
+~WRL*.tmp
+*.tmp
