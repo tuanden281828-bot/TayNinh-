@@ -950,7 +950,7 @@ fbq('track', 'PageView');
   // ---------- Google Sheet endpoint ----------
   // Dán URL Web App của Google Apps Script (kết thúc bằng /exec) vào đây sau khi triển khai.
   // Xem hướng dẫn tạo Google Sheet + Apps Script ở file GOOGLE_SHEET_SETUP.md trong repo.
-  var GOOGLE_SCRIPT_URL = '';
+  var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwpCZT8lpgyX7VNZJHn2aAETtKeNv1eZSgaf3ytJ0jjc6llxBCFTLvJsdDNhW0kDQc74Q/exec';
 
   function sendToSheet(payload){
     if(!GOOGLE_SCRIPT_URL){ return; } // chưa cấu hình -> bỏ qua, không lỗi
