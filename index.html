@@ -42,7 +42,7 @@ fbq('track', 'PageView');
   }
 
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
   body{
     margin:0;
     background:var(--parchment);
@@ -50,6 +50,8 @@ fbq('track', 'PageView');
     font-family:'Be Vietnam Pro',sans-serif;
     line-height:1.55;
     -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    width:100%;
   }
   img{max-width:100%;display:block;}
   h1,h2,h3{
@@ -195,28 +197,19 @@ fbq('track', 'PageView');
     text-shadow:0 3px 18px rgba(0,0,0,.45);
   }
   .hero h1 .headline-main{
-    display:block;font-style:italic;font-size:.58em;font-weight:600;
-    text-align:center;transform:scaleX(0.82);transform-origin:center;
-    position:relative;left:-1.22cm;
-  }
-  @media(max-width:640px){
-    .hero h1 .headline-main{transform:scaleX(0.9);left:-1.11cm;}
+    display:block;font-style:italic;font-weight:600;
+    font-size:clamp(0.92rem,3.6vw,1.45rem);
+    text-align:center;max-width:100%;
   }
   .hero h1 .accent{
-    color:#FFEE00;font-family:'Cormorant SC',serif;font-size:1em;font-weight:700;
+    color:#FFEE00;font-family:'Cormorant SC',serif;font-weight:700;
     text-transform:uppercase;letter-spacing:-0.01em;display:block;margin-top:.5em;
-    transform:scaleX(0.66);transform-origin:center;white-space:nowrap;
+    font-size:clamp(1.1rem,5.6vw,1.95rem);
     text-shadow:0 0 14px rgba(255,238,0,.55), 0 2px 10px rgba(0,0,0,.4);
-    text-align:center;
+    text-align:center;max-width:100%;
   }
-  @media(max-width:640px){
-    .hero h1 .accent{font-size:.78em;transform:scaleX(0.78);white-space:normal;}
-    .accent-line2{left:-2.56cm;}
-    .accent-line1{left:-0.641cm;}
-  }
-  .accent-line2{position:relative;left:-3.03cm;display:inline-block;}
-  .accent-line1{position:relative;left:-0.758cm;display:inline-block;}
-  .hero .tagline{font-style:italic;font-size:1.02rem;color:#F0DFB8;margin-top:.6em;text-align:center;position:relative;left:-0.5cm;}
+  .accent-line1,.accent-line2{display:block;}
+  .hero .tagline{font-style:italic;font-size:1.02rem;color:#F0DFB8;margin-top:.6em;text-align:center;}
   @media(max-width:640px){.hero h1{font-size:1.85rem;}}
 
   .sub-pills{
